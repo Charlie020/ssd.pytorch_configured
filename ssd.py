@@ -29,7 +29,7 @@ class SSD(nn.Module):
         super(SSD, self).__init__()
         self.phase = phase
         self.num_classes = num_classes
-        self.cfg = (coco, voc)[num_classes == 21]
+        self.cfg = (coco, voc)[num_classes == 3]
         self.priorbox = PriorBox(self.cfg)
         # deprecated:
         # self.priors = Variable(self.priorbox.forward(), volatile=True)
@@ -46,18 +46,25 @@ class SSD(nn.Module):
         self.loc = nn.ModuleList(head[0])
         self.conf = nn.ModuleList(head[1])
 
+        # 训练时代码
+        """
         if phase == 'test':
             self.softmax = nn.Softmax(dim=-1)
-            # ORIGINAL IMPLEMENTATION DEPRECATED
-            # self.detect = Detect(num_classes, 0, 200, 0.01, 0.45)
+                    # ORIGINAL IMPLEMENTATION DEPRECATED
+                    # self.detect = Detect(num_classes, 0, 200, 0.01, 0.45)
             self.detect = Detect()  # corrected implementation
-            # my comments
-            # this 'Detect' Function is not compatible with new Pytorch version,
-            # generates error 'Legacy autograd function with non-static forward
-            # method is deprecated. Please use new-style autograd function with
-            # static forward method.'
-            # Correction is implemented by passing above arguments directly to
-            # command .apply() at the forward method below.
+                    # my comments
+                    # this 'Detect' Function is not compatible with new Pytorch version,
+                    # generates error 'Legacy autograd function with non-static forward
+                    # method is deprecated. Please use new-style autograd function with
+                    # static forward method.'
+                    # Correction is implemented by passing above arguments directly to
+                    # command .apply() at the forward method below.
+        """
+        # 测试时代码
+        if phase == 'test':
+            self.softmax = nn.Softmax(dim=-1)
+            self.detect = Detect(num_classes, 0, 200, 0.5, 0.45)
 
     def forward(self, x):
         """Applies network layers and ops on input image(s) x.
@@ -107,6 +114,8 @@ class SSD(nn.Module):
 
         loc = torch.cat([o.view(o.size(0), -1) for o in loc], 1)
         conf = torch.cat([o.view(o.size(0), -1) for o in conf], 1)
+        # 训练时代码
+        """
         if self.phase == "test":
             # ORIGINAL LINE IS DEPRECATED
             # output = self.detect(
@@ -119,6 +128,15 @@ class SSD(nn.Module):
                # default boxes
                self.priors.type(type(x.data))
            )
+        """
+        # 测试时代码
+        if self.phase == "test":
+            output = self.detect.forward(
+                loc.view(loc.size(0), -1, 4),                   # loc preds
+                self.softmax(conf.view(conf.size(0), -1,
+                             self.num_classes)),                # conf preds
+                self.priors.type(type(x.data))                  # default boxes
+            )
         else:
             output = (
                 loc.view(loc.size(0), -1, 4),

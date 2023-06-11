@@ -15,6 +15,8 @@ import torch.utils.data as data
 
 from ssd import build_ssd
 
+from layers.functions import Detect
+
 import sys
 import os
 import time
@@ -36,7 +38,7 @@ def str2bool(v):
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Evaluation')
 parser.add_argument('--trained_model',
-                    default='weights/ssd300_COCO_20000.pth', type=str,
+                    default='weights/ssd300_VOC_20000.pth', type=str,
                     help='Trained state_dict file path to open')
 parser.add_argument('--save_folder', default='eval/', type=str,
                     help='File path to save results')
@@ -50,6 +52,8 @@ parser.add_argument('--voc_root', default=VOC_ROOT,
                     help='Location of VOC root directory')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
+parser.add_argument('--show_results', default=True, type=str2bool,
+                    help='show image detection results after detection') #####################################
 
 args = parser.parse_args()
 
@@ -107,9 +111,25 @@ def parse_rec(filename):
     for obj in tree.findall('object'):
         obj_struct = {}
         obj_struct['name'] = obj.find('name').text
-        obj_struct['pose'] = obj.find('pose').text
-        obj_struct['truncated'] = int(obj.find('truncated').text)
-        obj_struct['difficult'] = int(obj.find('difficult').text)
+
+        if obj.find('pose'):
+            pose = int(obj.find('pose').text)
+        else:
+            pose = 0
+        obj_struct['pose'] = pose
+
+        if obj.find('truncated'):
+            truncated = int(obj.find('truncated').text)
+        else:
+            truncated = 0
+        obj_struct['truncated'] = truncated
+
+        if obj.find('difficult'):
+            difficult = int(obj.find('difficult').text)
+        else:
+            difficult = 0
+        obj_struct['difficult'] = difficult
+
         bbox = obj.find('bndbox')
         obj_struct['bbox'] = [int(bbox.find('xmin').text) - 1,
                               int(bbox.find('ymin').text) - 1,
@@ -374,6 +394,8 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
     output_dir = get_output_dir('ssd300_120000', set_type)
     det_file = os.path.join(output_dir, 'detections.pkl')
 
+    # detect_process = Detect(num_classes, 0, top_k, thresh, nms_thresh)
+
     for i in range(num_images):
         im, gt, h, w = dataset.pull_item(i)
 
@@ -384,6 +406,7 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
         detections = net(x).data
         detect_time = _t['im_detect'].toc(average=False)
 
+        diff_cls_dets = []
         # skip j = 0, because it's the background class
         for j in range(1, detections.size(1)):
             dets = detections[0, j, :]
@@ -402,8 +425,48 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
                                                                  copy=False)
             all_boxes[j][i] = cls_dets
 
+            diff_cls_dets.append(np.array(cls_dets))
+
         print('im_detect: {:d}/{:d} {:.3f}s'.format(i + 1,
                                                     num_images, detect_time))
+###############################################################################
+        if args.show_results:
+            # img_names = [img_name for img_name in os.listdir(VOC_ROOT+'\VOC2007\JPEGImages') if ".png" in img_name]
+            # for img_name in img_names:
+            # img_path = VOC_ROOT+'\VOC2007\JPEGImages\\' + img_names[i]
+            color = [(128,0,0),
+                     (0,128,0),
+                     (128,128,0),
+                     (0,0,128),
+                     (128,0,128),
+                     (0,128,128),
+                     (128,128,128),
+                     (64,0,0),
+                     (192,0,0),
+                     (64,128,0),
+                     (192,128,0),
+                     (64,0,128),
+                     (192,0,128),
+                     (64,128,128),
+                     (192,128,128),
+                     (0,64,0),
+                     (128,64,0),
+                     (0,192,0),
+                     (128,192,0),
+                     (0,64,128)]
+            img = dataset.pull_image(i)
+            for color_num, diff_cls_det in enumerate(diff_cls_dets):
+                for k in range(diff_cls_det.shape[0]):
+                    x0 = diff_cls_det[k, 0]
+                    y0 = diff_cls_det[k, 1]
+                    x1 = diff_cls_det[k, 2]
+                    y1 = diff_cls_det[k, 3]
+                    # color = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
+                    # m = k % 3
+                    # if x1 - x0 <= 96 and y1 - y0 <= 96:
+                    #     continue
+                    cv2.rectangle(img, (int(x0), int(y0)), (int(x1), int(y1)), (255,0,0), 2)
+            cv2.imwrite("eval\\" + str(dataset.ids[i]).split(r'\\')[-1].split('\'')[-2] + '.png', img)
 
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
