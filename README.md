@@ -107,7 +107,7 @@ imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets', 'Main') + os.se
 
 
 
-（5）可能遇到`”AttributeError: ‘NoneType‘ object has no attribute ‘text‘“`：https://blog.csdn.net/qq_55535816/article/details/121456901，将代码报错部分按照此博客中方法二的方法设置
+（5）可能遇到`”AttributeError: ‘NoneType‘ object has no attribute ‘text‘“`：https://blog.csdn.net/qq_55535816/article/details/121456901 ，将代码报错部分按照此博客中方法二的方法设置
 
 
 
