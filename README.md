@@ -67,6 +67,7 @@
 
 ##### 测试
 
+先按照上述（1）中的`运行eval.py`修改，但可能会报`TypeError: forward() takes 4 positional arguments but 9 were given`的错，因此若遇到该项报错，只需按照以下内容修改即可。
 
 
 （1）修改`eval.py`
