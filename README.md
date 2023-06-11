@@ -122,4 +122,7 @@ cv2.error: OpenCV(4.5.2)  :-1 error: (-5:Bad argument) in function 'rectangle`
 （5）可能遇到`”AttributeError: ‘NoneType‘ object has no attribute ‘text‘“`，解决问题：https://blog.csdn.net/qq_55535816/article/details/121456901 ，将代码报错部分按照此博客中方法二的方法设置
 
 
+（6）可能遇到` R = [obj for obj in recs[imagename] if obj['name'] == classname] KeyError: '1000'`，解决问题：https://github.com/amdegroot/ssd.pytorch/issues/482 （删除`annotations_cache/annots.pkl`）
+
+
 
