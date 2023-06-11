@@ -1,6 +1,6 @@
 # ssd.pytorch_configured
 
-### 配置好的pytorch版本的ssd模型，修改了部分bug，同时找到了部分解决问题的博客和交流贴
+### 配置好的pytorch版本的ssd模型，修改了部分可能出现bug的代码，同时找到了解决部分问题的博客和交流贴
 
 （1）配置ssd：https://blog.csdn.net/m0_47452894/article/details/112783858
 
