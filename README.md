@@ -37,7 +37,24 @@
 
 
 （4）问题`“IndexError: too many indices for array”` https://github.com/amdegroot/ssd.pytorch/issues/224  （此为数据集当中可能出现的问题，交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误）
-
+```
+--data
+|   --VOCdevkit
+|   	  --VOC2007
+|        	--Annotations
+|             		--1.xml,2.xml,....
+|        	--JPEGImages
+|             		--1.jpg,2.jpg,....
+|        	--ImageSets
+|             		--Main
+|                 	    --test.txt        # 用于测试，这几个文件中存的都是文件的索引，如1,2,3,4...加上.xml或者.jpg就是对应标签和图像的名字
+|                 	    --train.txt       # 用于训练
+|                 	    --trainval.txt    # 训练加验证
+|                 	    --val.txt         # 验证
+|        	--debug.py
+|        	--make.py
+|   ······
+```
 
 
 （5）若你的数据集按VOC格式划分好了的，可跳过这一步，`data/VOCdevkit/VOC2007/make.py`为：按照自己设定的比例划分当前数据集，方便模型读取哪些图片用来训练，哪些用来测试。
