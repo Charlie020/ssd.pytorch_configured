@@ -101,6 +101,8 @@ imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets', 'Main') + os.se
 ```
 
 
+完成上述部分，看能否运行成功`eval.py`，若报错，下面的部分可能会有所帮助。
+
 
 （3）可能遇到`”RuntimeError: index_select(): functions with out=... arguments don't support automatic differentiation, but one of the arguments requires grad.”`，解决问题：https://blog.csdn.net/XiaoGShou/article/details/125253471
 
