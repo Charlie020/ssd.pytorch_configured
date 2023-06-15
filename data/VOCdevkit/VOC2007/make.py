@@ -5,7 +5,7 @@
 import os
 import random
 
-trainval_percent = 0.7
+trainval_percent = 0.8
 train_percent = 0.8
 xmlfilepath = 'Annotations/'
 txtsavepath = 'ImageSets/Main'
