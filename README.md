@@ -127,4 +127,55 @@ cv2.error: OpenCV(4.5.2)  :-1 error: (-5:Bad argument) in function 'rectangle`
 （6）可能遇到` R = [obj for obj in recs[imagename] if obj['name'] == classname] KeyError: '1000'`，解决问题：https://github.com/amdegroot/ssd.pytorch/issues/482 （删除`annotations_cache/annots.pkl`）
 
 
+注：测试时修改后的ssd.py的代码并没法在训练的时候也成功运行，因此以后想要反复训练和测试，仅需在相应阶段使用相应的代码，这里已经整理好了，仅需调整`ssd.py`的内容（下面代码为训练时用，测试部分已被注释）：
 
+（训练时，注释掉测试用的代码，同时取消注释训练用的代码；测试时同理）
+
+```
+# 51行附近
+	# 训练时代码
+        if phase == 'test':
+            self.softmax = nn.Softmax(dim=-1)
+                    # ORIGINAL IMPLEMENTATION DEPRECATED
+                    # self.detect = Detect(num_classes, 0, 200, 0.01, 0.45)
+            self.detect = Detect()  # corrected implementation
+                    # my comments
+                    # this 'Detect' Function is not compatible with new Pytorch version,
+                    # generates error 'Legacy autograd function with non-static forward
+                    # method is deprecated. Please use new-style autograd function with
+                    # static forward method.'
+                    # Correction is implemented by passing above arguments directly to
+                    # command .apply() at the forward method below.
+        """
+        # 测试时代码
+        if phase == 'test':
+            self.softmax = nn.Softmax(dim=-1)
+            self.detect = Detect(num_classes, 0, 200, 0.25, 0.45)
+        """
+
+
+# 120行附近
+	# 训练时代码
+        if self.phase == "test":
+            # ORIGINAL LINE IS DEPRECATED
+            # output = self.detect(
+            # corrected implementation:
+            output = self.detect.apply(self.num_classes, 0, 200, 0.01, 0.45,
+               # loc preds
+               loc.view(loc.size(0), -1, 4),
+               # conf preds
+               self.softmax(conf.view(conf.size(0), -1, self.num_classes)),
+               # default boxes
+               self.priors.type(type(x.data))
+           )
+        # 测试时代码
+            """
+        if self.phase == "test":
+            output = self.detect.forward(
+                loc.view(loc.size(0), -1, 4),                   # loc preds
+                self.softmax(conf.view(conf.size(0), -1,
+                             self.num_classes)),                # conf preds
+                self.priors.type(type(x.data))                  # default boxes
+            )
+            """ 
+```
