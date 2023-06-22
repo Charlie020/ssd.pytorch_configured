@@ -23,7 +23,7 @@ VOC_CLASSES = (  # always index 0
     # 'cow', 'diningtable', 'dog', 'horse',
     # 'motorbike', 'person', 'pottedplant',
     # 'sheep', 'sofa', 'train', 'tvmonitor',
-    'face', 'face_mask')
+    'nomask', 'mask')
 
 # note: if you used our download scripts, this should be right
 VOC_ROOT = osp.join(HOME, "E:\PythonCode\ssd.pytorch-master\data\VOCdevkit")
@@ -57,7 +57,11 @@ class VOCAnnotationTransform(object):
         """
         res = []
         for obj in target.iter('object'):
-            difficult = int(obj.find('difficult').text) == 1
+            if obj.find('difficult'):
+                diff = int(obj.find('difficult').text)
+            else:
+                diff = 0
+            difficult = diff == 1
             if not self.keep_difficult and difficult:
                 continue
             name = obj.find('name').text.lower().strip()

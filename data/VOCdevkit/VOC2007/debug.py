@@ -26,7 +26,7 @@ CLASSES = (  # always index 0
     # 'cow', 'diningtable', 'dog', 'horse',
     # 'motorbike', 'person', 'pottedplant',
     # 'sheep', 'sofa', 'train', 'tvmonitor',
-    'face', 'face_mask')
+    'nomask', 'mask')
 
 annopath = osp.join('%s', 'Annotations', '%s.{}'.format("xml"))
 imgpath  = osp.join('%s', 'JPEGImages',  '%s.{}'.format("jpg"))
@@ -37,7 +37,12 @@ def vocChecker(image_id, width, height, keep_difficult = False):
 
     for obj in target.iter('object'):
 
-        difficult = int(obj.find('difficult').text) == 1
+        if obj.find('difficult'):
+            diff = int(obj.find('difficult').text)
+        else:
+            diff = 0
+
+        difficult = diff == 1
 
         if not keep_difficult and difficult:
             continue

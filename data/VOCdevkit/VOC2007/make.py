@@ -6,7 +6,7 @@ import os
 import random
 
 trainval_percent = 0.8
-train_percent = 0.8
+train_percent = 0.75
 xmlfilepath = 'Annotations/'
 txtsavepath = 'ImageSets/Main'
 total_xml = os.listdir(xmlfilepath)
