@@ -53,7 +53,7 @@ parser.add_argument('--voc_root', default=VOC_ROOT,
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
 parser.add_argument('--show_results', default=True, type=str2bool,
-                    help='show image detection results after detection') #####################################
+                    help='show image detection results after detection')
 
 args = parser.parse_args()
 
