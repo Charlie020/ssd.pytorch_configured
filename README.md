@@ -10,9 +10,9 @@
 
 ### （2）本仓库所修改的源代码的作者及其仓库链接：https://github.com/amdegroot/ssd.pytorch
 
+<br/>
 
-
-## 二、配置模型以及可能出现的问题的解决方案
+## 二、从零开始配置模型以及可能出现的问题的解决方案
 
 
 
@@ -20,21 +20,22 @@
 
 
 
-### 训练
+### 1、训练
 
 
 
 （1）配置ssd：https://blog.csdn.net/m0_47452894/article/details/112783858 中的`运行eval.py`之前的部分，在配置好这一条的基础上运行`train.py`，看能不能成功运行。
-
-
+  <br/>
 
 （2）完善ssd：https://blog.csdn.net/dear_queen/article/details/114301614   （用于解决目标计算机积极拒绝的问题）
+  <br/>
 
 （3）解决问题`“Expected a 'cuda' device type for generator but found 'cpu'”`： https://github.com/amdegroot/ssd.pytorch/issues/561
+  <br/>
+  
+（4）若你的数据集按VOC格式划分好了的，可跳过这一步。若未划分，则可以找到`data/VOCdevkit/VOC2007`下的`make.py`，先在代码中设定数据集各部分划分的比例（默认训练：验证：测试=6：2：2），然后运行。代码在`ImageSets/Main`下自动生成`trainval.txt`,`test.txt`,`train.txt`,`val.txt`四个文件，方便模型读取哪些图片用来训练，哪些用来验证，哪些用来测试。
 
-（4）若你的数据集按VOC格式划分好了的，可跳过这一步。若未划分，则可以找到`data/VOCdevkit/VOC2007`下的`make.py`，先在代码中设定数据集各部分划分的比例，然后运行。代码在`ImageSets/Main`下自动生成`trainval.txt`,`test.txt`,`train.txt`,`val.txt`四个文件，方便模型读取哪些图片用来训练，哪些用来测试。
-
-`data`文件夹中的VOC数据集文件结构如下：
+`data`文件夹中的VOC数据集文件结构如下（Annotations中放数据集中所有的标签，ImageSets中放数据集中所有的图片）：
 ```
 --data
 |   --VOCdevkit
@@ -51,14 +52,20 @@
 |                 	    --val.txt         # 验证
 |        	--debug.py
 |        	--make.py
+|               --clear.py
 |   ······ # 其他文件
 ```
+<br/>
+（5）解决问题`“IndexError: too many indices for array”`： https://github.com/amdegroot/ssd.pytorch/issues/224  （此为数据集当中可能出现的问题，交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误） <br/><br/>
 
-（5）解决问题`“IndexError: too many indices for array”`： https://github.com/amdegroot/ssd.pytorch/issues/224  （此为数据集当中可能出现的问题，交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误）
+（6）clear.py用来解决图片与标签数量不匹配的问题。
+<br/><br/><br/>
 
 一般而言，完成上述部分即可开始训练了。
-
-### 测试
+<br/>
+<br/>
+<br/>
+### 2、测试
 
 先按照上述（1）中的`运行eval.py`修改，运行eval.py，若没有成功运行则可能会报`TypeError: forward() takes 4 positional arguments but 9 were given`的错，因此若遇到该项报错，只需按照以下内容修改即可。
 
@@ -105,7 +112,7 @@ imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets', 'Main') + os.se
 
 
 （3）可能遇到`”RuntimeError: index_select(): functions with out=... arguments don't support automatic differentiation, but one of the arguments requires grad.”`，解决问题：https://blog.csdn.net/XiaoGShou/article/details/125253471
-
+<br/>
 
 
 （4）可能遇到
@@ -118,16 +125,15 @@ cv2.error: OpenCV(4.5.2)  :-1 error: (-5:Bad argument) in function 'rectangle`
 ```
 
 解决问题：https://stackoverflow.com/questions/67921192/5bad-argument-in-function-rectangle-cant-parse-pt1-sequence-item-wit
-
+<br/>
 
 
 （5）可能遇到`”AttributeError: ‘NoneType‘ object has no attribute ‘text‘“`，解决问题：https://blog.csdn.net/qq_55535816/article/details/121456901 ，将代码报错部分按照此博客中方法二的方法设置
 
-
 （6）可能遇到` R = [obj for obj in recs[imagename] if obj['name'] == classname] KeyError: '1000'`，解决问题：https://github.com/amdegroot/ssd.pytorch/issues/482 （删除`annotations_cache/annots.pkl`）
 
-
-注：测试时修改后的ssd.py的代码并没法在训练的时候也成功运行，因此以后想要反复训练和测试，仅需在相应阶段使用相应的代码，这里已经整理好了，仅需调整`ssd.py`的内容（下面代码为训练时用，测试部分已被注释）：
+<br/><br/>
+### 3、注：测试时修改后的ssd.py的代码并没法在训练的时候也成功运行，因此以后想要反复训练和测试，仅需在相应阶段使用相应的代码，这里已经整理好了，仅需调整`ssd.py`的内容（下面代码为训练时用，测试部分已被注释）：
 
 （训练时，注释掉测试用的代码，同时取消注释训练用的代码；测试时同理）
 
