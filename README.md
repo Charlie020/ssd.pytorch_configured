@@ -27,7 +27,7 @@
 （1）配置ssd：https://blog.csdn.net/m0_47452894/article/details/112783858 中的`运行eval.py`之前的部分，在配置好这一条的基础上运行`train.py`，看能不能成功运行。
   <br/>
 
-（2）完善ssd：https://blog.csdn.net/dear_queen/article/details/114301614   （用于解决目标计算机积极拒绝的问题）
+（2）完善ssd：https://blog.csdn.net/dear_queen/article/details/114301614   （用于解决目标计算机积极拒绝的问题），即需要在终端里面启动visdom，输入命令：python -m visdom.server
   <br/>
 
 （3）解决问题`“Expected a 'cuda' device type for generator but found 'cpu'”`： https://github.com/amdegroot/ssd.pytorch/issues/561
@@ -56,7 +56,15 @@
 |   ······ # 其他文件
 ```
 <br/>
-（5）解决问题`“IndexError: too many indices for array”`： https://github.com/amdegroot/ssd.pytorch/issues/224  （此为数据集当中可能出现的问题，交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误） <br/><br/>
+（5）解决问题 
+
+`img, boxes, labels = self.transform(img, target[:, :4], target[:, 4])` 
+
+`IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed` ：
+此为数据集当中可能出现的问题，主要原因可能是作为背景训练的图片的XML文件中没有obj对象。
+解决办法：https://github.com/amdegroot/ssd.pytorch/issues/224，交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误） 
+
+<br/><br/>
 
 （6）clear.py用来解决图片与标签数量不匹配的问题。
 <br/><br/><br/>
