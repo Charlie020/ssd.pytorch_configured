@@ -62,11 +62,15 @@
 
 `IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed` ：
 此为数据集当中可能出现的问题，主要原因可能是作为背景训练的图片的XML文件中没有obj对象。
-解决办法：https://github.com/amdegroot/ssd.pytorch/issues/224，交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误） 
+解决办法：https://github.com/amdegroot/ssd.pytorch/issues/224, 交流帖中代码已保存至仓库中`data/VOCdevkit/VOC2007/debug.py`，即与VOC2007数据集中的`Annotations`、`JPEGImages`等在同一目录，运行后在哪一个xml停下来，就去删除或修改对应的xml和图片，当运行`debug.py`不再显示` “ INDEX ERROR HERE ! ”`，再运行`train.py`则不会报该项错误） 
 
 <br/><br/>
 
-（6）clear.py用来解决图片与标签数量不匹配的问题。
+(6)解决问题
+`source = open(source, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: 'E:\\...\\ssd.pytorch-master\\data\\VOCdevkit\\VOC2007\\Annotations\\00077.xml'`，该问题是（5）中删除了对应的xml和图片，而train.txt或val.txt中存的索引没有删除所导致的，去train.txt或val.txt中删除对应索引即可。
+
+（7）clear.py用来解决图片与标签数量不匹配的问题。
 <br/><br/><br/>
 
 一般而言，完成上述部分即可开始训练了。
